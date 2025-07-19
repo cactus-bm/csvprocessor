@@ -10,24 +10,25 @@ const PreviewTitle = styled.h2`
   margin-bottom: 1rem;
 `;
 
-const PreviewTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  
-  th, td {
-    border: 1px solid var(--border-color);
-    padding: 0.5rem;
-    text-align: left;
-  }
-  
-  th {
-    background-color: var(--hover-color);
-  }
-  
-  tr:nth-child(even) {
-    background-color: var(--hover-color);
-  }
-`;
+// Table styling will be used in task 5 implementation
+// const PreviewTable = styled.table`
+//   width: 100%;
+//   border-collapse: collapse;
+//   
+//   th, td {
+//     border: 1px solid var(--border-color);
+//     padding: 0.5rem;
+//     text-align: left;
+//   }
+//   
+//   th {
+//     background-color: var(--hover-color);
+//   }
+//   
+//   tr:nth-child(even) {
+//     background-color: var(--hover-color);
+//   }
+// `;
 
 interface CSVPreviewProps {
   csvData: any;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Define types based on our design document
 export interface CSVData {
@@ -22,7 +22,7 @@ export interface Configuration {
 }
 
 export interface ProcessedRow {
-  [key: string]: string | number;
+  [key: string]: string | number | undefined;
   US_DATE?: string;
   UK_DATE?: string;
   ISO_DATE?: string;
@@ -51,9 +51,12 @@ const defaultConfiguration: Configuration = {
 
 const CSVContext = createContext<CSVContextType | undefined>(undefined);
 
-export const CSVProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const CSVProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [csvData, setCsvData] = useState<CSVData | null>(null);
-  const [configuration, setConfiguration] = useState<Configuration>(defaultConfiguration);
+  const [configuration, setConfiguration] =
+    useState<Configuration>(defaultConfiguration);
   const [processedData, setProcessedData] = useState<ProcessedRow[]>([]);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +84,7 @@ export const CSVProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 export const useCSV = (): CSVContextType => {
   const context = useContext(CSVContext);
   if (context === undefined) {
-    throw new Error('useCSV must be used within a CSVProvider');
+    throw new Error("useCSV must be used within a CSVProvider");
   }
   return context;
 };

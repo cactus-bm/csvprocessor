@@ -57,8 +57,8 @@ function App() {
     setCsvData, 
     configuration, 
     setConfiguration, 
-    processedData, 
-    setProcessedData,
+    // processedData, // Commented out until needed
+    // setProcessedData, // Commented out until needed
     currentStep,
     setCurrentStep,
     error,
