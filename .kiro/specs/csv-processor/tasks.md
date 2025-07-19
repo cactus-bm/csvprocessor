@@ -7,16 +7,16 @@
   - Configure basic styling approach (CSS modules or styled-components)
   - _Requirements: 7.1_
 
-- [ ] 2. Implement file upload functionality
+- [x] 2. Implement file upload functionality
 
-  - [ ] 2.1 Create drag-and-drop file upload component
+  - [x] 2.1 Create drag-and-drop file upload component
 
     - Implement drag events and visual feedback
     - Handle file selection and validation
     - Display error messages for invalid files
     - _Requirements: 1.1, 1.2, 1.3, 7.1_
 
-  - [ ] 2.2 Implement CSV parsing utility
+  - [x] 2.2 Implement CSV parsing utility
     - Create function to parse CSV text into structured data
     - Handle different delimiters and quote characters
     - Implement error handling for malformed CSV
