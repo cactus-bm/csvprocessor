@@ -218,14 +218,38 @@ export const parseCSV = (
 
 /**
  * Process CSV data based on configuration
- * Will be implemented in task 4
+ * Basic implementation for task 7.1
  */
 export const processCSV = (
   csvData: CSVData,
   config: Configuration
 ): ProcessedRow[] => {
-  // Placeholder implementation
-  return [];
+  if (!csvData || !csvData.rows || csvData.rows.length === 0) {
+    return [];
+  }
+
+  const headerRow = csvData.rows[config.headerRowIndex] || [];
+  const dataRows = csvData.rows.slice(config.headerRowIndex + 1);
+
+  // Process each row according to configuration
+  return dataRows.map((row) => {
+    const processedRow: ProcessedRow = {};
+
+    // Add original data
+    headerRow.forEach((header, index) => {
+      if (header) {
+        processedRow[header] = row[index] || "";
+      }
+    });
+
+    // Add placeholder for standardized columns that will be implemented in task 4
+    processedRow.US_DATE = "";
+    processedRow.UK_DATE = "";
+    processedRow.ISO_DATE = "";
+    processedRow.CLEAN_AMOUNT = 0;
+
+    return processedRow;
+  });
 };
 
 /**

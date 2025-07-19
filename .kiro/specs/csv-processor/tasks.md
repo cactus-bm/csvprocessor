@@ -23,9 +23,9 @@
     - Write unit tests for CSV parsing
     - _Requirements: 1.3_
 
-- [ ] 3. Implement CSV configuration interface
+- [-] 3. Implement CSV configuration interface
 
-  - [ ] 3.1 Create header row selection component
+  - [x] 3.1 Create header row selection component
 
     - Display raw CSV data in tabular format
     - Implement row selection mechanism
@@ -98,7 +98,7 @@
 
 - [ ] 7. Implement application state management
 
-  - [ ] 7.1 Create context for application state
+  - [x] 7.1 Create context for application state
 
     - Define state structure for CSV data and configuration
     - Implement state update functions
