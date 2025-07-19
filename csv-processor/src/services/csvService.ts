@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import { CSVData, Configuration, ProcessedRow } from "../context/CSVContext";
+import { standardizeDateFormats } from "../utils/dateUtils";
 
 /**
  * Interface for CSV parsing options
@@ -218,7 +219,7 @@ export const parseCSV = (
 
 /**
  * Process CSV data based on configuration
- * Basic implementation for task 7.1
+ * Implementation for task 4.1 with date standardization and task 4.2 with amount calculation
  */
 export const processCSV = (
   csvData: CSVData,
@@ -231,6 +232,30 @@ export const processCSV = (
   const headerRow = csvData.rows[config.headerRowIndex] || [];
   const dataRows = csvData.rows.slice(config.headerRowIndex + 1);
 
+  // Find the index of the date column if specified
+  const dateColumnIndex = config.columnMappings.date
+    ? headerRow.findIndex((header) => header === config.columnMappings.date)
+    : -1;
+
+  // Find indices for amount-related columns
+  const amountColumnIndex = config.columnMappings.amount
+    ? headerRow.findIndex((header) => header === config.columnMappings.amount)
+    : -1;
+
+  const amountTypeColumnIndex = config.columnMappings.amountType
+    ? headerRow.findIndex(
+        (header) => header === config.columnMappings.amountType
+      )
+    : -1;
+
+  const incomeColumnIndex = config.columnMappings.income
+    ? headerRow.findIndex((header) => header === config.columnMappings.income)
+    : -1;
+
+  const expenseColumnIndex = config.columnMappings.expense
+    ? headerRow.findIndex((header) => header === config.columnMappings.expense)
+    : -1;
+
   // Process each row according to configuration
   return dataRows.map((row) => {
     const processedRow: ProcessedRow = {};
@@ -242,11 +267,73 @@ export const processCSV = (
       }
     });
 
-    // Add placeholder for standardized columns that will be implemented in task 4
-    processedRow.US_DATE = "";
-    processedRow.UK_DATE = "";
-    processedRow.ISO_DATE = "";
-    processedRow.CLEAN_AMOUNT = 0;
+    // Process date column if configured
+    if (dateColumnIndex >= 0) {
+      const dateValue = row[dateColumnIndex] || "";
+
+      // Standardize date formats
+      const standardDates = standardizeDateFormats(
+        dateValue,
+        config.dateFormat
+      );
+
+      // Add standardized date formats to the processed row
+      processedRow.US_DATE = standardDates.US_DATE;
+      processedRow.UK_DATE = standardDates.UK_DATE;
+      processedRow.ISO_DATE = standardDates.ISO_DATE;
+    } else {
+      // No date column configured, use empty strings
+      processedRow.US_DATE = "";
+      processedRow.UK_DATE = "";
+      processedRow.ISO_DATE = "";
+    }
+
+    // Calculate CLEAN_AMOUNT based on configuration
+    let cleanAmount = 0;
+
+    // Case 1: Income and expense columns are selected
+    if (incomeColumnIndex >= 0 && expenseColumnIndex >= 0) {
+      const incomeStr = row[incomeColumnIndex] || "0";
+      const expenseStr = row[expenseColumnIndex] || "0";
+
+      // Parse income and expense values, handling various formats
+      const income = parseFloat(incomeStr.replace(/[^\d.-]/g, "")) || 0;
+      const expense = parseFloat(expenseStr.replace(/[^\d.-]/g, "")) || 0;
+
+      // Calculate net amount (income - expense)
+      cleanAmount = income - expense;
+    }
+    // Case 2: Amount and amount type columns are selected
+    else if (amountColumnIndex >= 0) {
+      const amountStr = row[amountColumnIndex] || "0";
+
+      // Parse amount value, handling various formats
+      let amount = parseFloat(amountStr.replace(/[^\d.-]/g, "")) || 0;
+
+      // Check if the amount already has a sign
+      if (amountStr.trim().startsWith("-")) {
+        // Amount is already negative, keep as is
+      } else if (amountTypeColumnIndex >= 0) {
+        // Check amount type for debit indicator (D, DR, DEBIT)
+        const amountType = (row[amountTypeColumnIndex] || "").toUpperCase();
+        if (
+          amountType.includes("D") ||
+          amountType.includes("DR") ||
+          amountType.includes("DEBIT")
+        ) {
+          amount = -amount; // Multiply by -1 for debits
+        }
+      }
+
+      cleanAmount = amount;
+    }
+
+    // Apply inversion if configured
+    if (config.invertAmounts) {
+      cleanAmount = -cleanAmount;
+    }
+
+    processedRow.CLEAN_AMOUNT = cleanAmount;
 
     return processedRow;
   });

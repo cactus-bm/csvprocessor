@@ -33,7 +33,7 @@
     - Write unit tests for header selection logic
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [ ] 3.2 Implement column mapping interface
+  - [x] 3.2 Implement column mapping interface
 
     - Create dropdown selectors for mapping columns to data types
     - Validate column mappings against data types
@@ -41,7 +41,7 @@
     - Write unit tests for column mapping validation
     - _Requirements: 4.1, 4.2_
 
-  - [ ] 3.3 Implement date column configuration
+  - [x] 3.3 Implement date column configuration
     - Create interface for selecting date column
     - Implement date format detection logic
     - Allow manual override of detected format
@@ -50,7 +50,7 @@
 
 - [ ] 4. Implement data transformation logic
 
-  - [ ] 4.1 Create date standardization utility
+  - [x] 4.1 Create date standardization utility
 
     - Implement functions to convert between date formats
     - Generate US_DATE, UK_DATE, and ISO_DATE formats
@@ -58,7 +58,7 @@
     - Write unit tests for date conversions
     - _Requirements: 3.4_
 
-  - [ ] 4.2 Implement amount calculation logic
+  - [x] 4.2 Implement amount calculation logic
     - Create functions for income/expense calculation
     - Implement amount type detection and sign adjustment
     - Add support for amount inversion

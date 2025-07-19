@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useCSV, CSVData, Configuration } from "../../context/CSVContext";
+import DateColumnConfiguration from "./DateColumnConfiguration";
+import ColumnMappingConfiguration from "./ColumnMappingConfiguration";
 
 const ConfigurationContainer = styled.div`
   margin-bottom: 2rem;
@@ -257,6 +259,12 @@ const CSVConfiguration: React.FC<CSVConfigurationProps> = ({
           </div>
         )}
       </HeaderSelectionSection>
+
+      {/* Add Column Mapping Configuration */}
+      <ColumnMappingConfiguration csvData={csvData} />
+
+      {/* Add Date Column Configuration */}
+      <DateColumnConfiguration csvData={csvData} />
     </ConfigurationContainer>
   );
 };

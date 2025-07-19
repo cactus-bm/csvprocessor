@@ -25,7 +25,7 @@ export interface Configuration {
     description?: string;
     reference?: string;
   };
-  dateFormat: "DD/MM" | "MM/DD" | "auto";
+  dateFormat: "DD/MM" | "MM/DD" | "DD MMM" | "auto";
   invertAmounts: boolean;
 }
 
