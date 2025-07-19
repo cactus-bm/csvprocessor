@@ -23,7 +23,7 @@
     - Write unit tests for CSV parsing
     - _Requirements: 1.3_
 
-- [-] 3. Implement CSV configuration interface
+- [x] 3. Implement CSV configuration interface
 
   - [x] 3.1 Create header row selection component
 
@@ -82,7 +82,7 @@
 
 - [ ] 6. Implement file download functionality
 
-  - [ ] 6.1 Create CSV generation utility
+  - [x] 6.1 Create CSV generation utility
 
     - Convert processed data back to CSV format
     - Include original and new columns

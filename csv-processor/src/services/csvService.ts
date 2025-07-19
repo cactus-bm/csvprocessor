@@ -341,9 +341,61 @@ export const processCSV = (
 
 /**
  * Generate CSV string from processed data
- * Will be implemented in task 6.1
+ * @param processedData - Array of processed data rows
+ * @returns CSV string with headers and data
  */
 export const generateCSV = (processedData: ProcessedRow[]): string => {
-  // Placeholder implementation
-  return "";
+  if (!processedData || processedData.length === 0) {
+    return "";
+  }
+
+  // Get all unique headers from the processed data
+  const headers = Array.from(
+    new Set(processedData.flatMap((row) => Object.keys(row)))
+  );
+
+  // Ensure the standardized columns are at the end
+  const standardColumns = ["US_DATE", "UK_DATE", "ISO_DATE", "CLEAN_AMOUNT"];
+
+  // Remove standard columns from the regular headers if they exist
+  const regularHeaders = headers.filter(
+    (header) => !standardColumns.includes(header)
+  );
+
+  // Combine regular headers with standard columns
+  const orderedHeaders = [...regularHeaders, ...standardColumns];
+
+  // Create the header row
+  const headerRow = orderedHeaders.join(",");
+
+  // Create data rows
+  const dataRows = processedData.map((row) => {
+    return orderedHeaders
+      .map((header) => {
+        const value = row[header];
+
+        // Handle different value types
+        if (value === undefined || value === null) {
+          return "";
+        } else if (typeof value === "string") {
+          // Escape quotes and wrap in quotes if the value contains commas, quotes, or newlines
+          if (
+            value.includes(",") ||
+            value.includes('"') ||
+            value.includes("\n")
+          ) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return value;
+        } else if (typeof value === "number") {
+          return value.toString();
+        } else {
+          return String(value);
+        }
+      })
+      .join(",");
+  });
+
+  // Combine header and data rows
+  return [headerRow, ...dataRows].join("\n");
 };
