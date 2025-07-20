@@ -1,11 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
-import GlobalStyles from './GlobalStyles';
-import FileUpload from './components/FileUpload';
-import CSVConfiguration from './components/CSVConfiguration';
-import CSVPreview from './components/CSVPreview';
-import Download from './components/Download';
-import { useCSV } from './context/CSVContext';
+import React, { useState } from "react";
+import styled from "styled-components";
+import GlobalStyles from "./GlobalStyles";
+import FileUpload from "./components/FileUpload";
+import CSVConfiguration from "./components/CSVConfiguration";
+import CSVPreview from "./components/CSVPreview";
+import Download from "./components/Download";
+import { useCSV, CSVProcessingStep } from "./context/CSVContext";
 
 const AppContainer = styled.div`
   max-width: 1200px;
@@ -39,8 +39,10 @@ const Step = styled.div<{ active: boolean }>`
   padding: 0.5rem 1rem;
   margin: 0 0.5rem;
   border-radius: 4px;
-  background-color: ${props => props.active ? 'var(--primary-color)' : 'var(--border-color)'};
-  color: ${props => props.active ? 'white' : 'var(--text-color)'};
+  background-color: ${(props) =>
+    props.active ? "var(--primary-color)" : "var(--border-color)"};
+  color: ${(props) => (props.active ? "white" : "var(--text-color)")};
+  cursor: ${(props) => (props.active ? "default" : "pointer")};
 `;
 
 const ErrorMessage = styled.div`
@@ -51,37 +53,80 @@ const ErrorMessage = styled.div`
   margin-bottom: 1rem;
 `;
 
+const SuccessMessage = styled.div`
+  background-color: var(--success-color);
+  color: white;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+`;
+
 function App() {
-  const { 
-    csvData, 
-    setCsvData, 
-    configuration, 
-    setConfiguration, 
-    // processedData, // Commented out until needed
-    // setProcessedData, // Commented out until needed
+  const {
+    csvData,
+    setCsvData,
+    setConfiguration,
+    processedData,
     currentStep,
     setCurrentStep,
     error,
-    setError
+    setError,
+    processCSVData,
   } = useCSV();
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleFileLoaded = (data: any) => {
     setCsvData(data);
-    setCurrentStep(1);
+    setCurrentStep(CSVProcessingStep.CONFIGURE_HEADERS);
     setError(null);
+    setSuccessMessage("CSV file loaded successfully!");
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
   };
 
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
+
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      setError(null);
+    }, 5000);
   };
 
   const handleConfigurationComplete = (config: any) => {
     setConfiguration(config);
-    setCurrentStep(2);
+    setCurrentStep(CSVProcessingStep.PREVIEW);
+
+    // Trigger data processing with new configuration
+    processCSVData();
+
+    setSuccessMessage("Configuration applied successfully!");
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
   };
 
   const handleDownloadComplete = () => {
-    // Reset or show success message
+    setSuccessMessage("File downloaded successfully!");
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  };
+
+  // Handle step navigation
+  const handleStepClick = (step: CSVProcessingStep) => {
+    // Only allow navigation to steps that are available based on current progress
+    if (step <= currentStep) {
+      setCurrentStep(step);
+    }
   };
 
   return (
@@ -94,42 +139,69 @@ function App() {
         </Header>
         <Main>
           <StepIndicator>
-            <Step active={currentStep === 0}>Upload</Step>
-            <Step active={currentStep === 1}>Configure</Step>
-            <Step active={currentStep === 2}>Preview</Step>
-            <Step active={currentStep === 3}>Download</Step>
+            <Step
+              active={currentStep === CSVProcessingStep.UPLOAD}
+              onClick={() => handleStepClick(CSVProcessingStep.UPLOAD)}
+            >
+              Upload
+            </Step>
+            <Step
+              active={
+                currentStep === CSVProcessingStep.CONFIGURE_HEADERS ||
+                currentStep === CSVProcessingStep.CONFIGURE_COLUMNS ||
+                currentStep === CSVProcessingStep.CONFIGURE_DATES
+              }
+              onClick={() =>
+                csvData && handleStepClick(CSVProcessingStep.CONFIGURE_HEADERS)
+              }
+            >
+              Configure
+            </Step>
+            <Step
+              active={currentStep === CSVProcessingStep.PREVIEW}
+              onClick={() =>
+                csvData && handleStepClick(CSVProcessingStep.PREVIEW)
+              }
+            >
+              Preview
+            </Step>
+            <Step
+              active={currentStep === CSVProcessingStep.DOWNLOAD}
+              onClick={() =>
+                csvData &&
+                processedData.length > 0 &&
+                handleStepClick(CSVProcessingStep.DOWNLOAD)
+              }
+            >
+              Download
+            </Step>
           </StepIndicator>
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
+          {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
 
-          {currentStep === 0 && (
-            <FileUpload 
-              onFileLoaded={handleFileLoaded} 
-              onError={handleError} 
-            />
+          {currentStep === CSVProcessingStep.UPLOAD && (
+            <FileUpload onFileLoaded={handleFileLoaded} onError={handleError} />
           )}
 
-          {currentStep >= 1 && csvData && (
-            <CSVConfiguration 
-              csvData={csvData} 
-              onConfigurationComplete={handleConfigurationComplete} 
-            />
+          {currentStep >= CSVProcessingStep.CONFIGURE_HEADERS &&
+            currentStep <= CSVProcessingStep.CONFIGURE_DATES &&
+            csvData && (
+              <CSVConfiguration
+                csvData={csvData}
+                onConfigurationComplete={handleConfigurationComplete}
+              />
+            )}
+
+          {currentStep >= CSVProcessingStep.PREVIEW && csvData && (
+            <CSVPreview />
           )}
 
-          {currentStep >= 2 && csvData && (
-            <CSVPreview 
-              csvData={csvData} 
-              configuration={configuration} 
-            />
-          )}
-
-          {currentStep >= 2 && csvData && (
-            <Download 
-              csvData={csvData} 
-              configuration={configuration} 
-              onDownloadComplete={handleDownloadComplete} 
-            />
-          )}
+          {currentStep >= CSVProcessingStep.PREVIEW &&
+            csvData &&
+            processedData.length > 0 && (
+              <Download onDownloadComplete={handleDownloadComplete} />
+            )}
         </Main>
       </AppContainer>
     </>

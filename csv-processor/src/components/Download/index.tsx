@@ -1,5 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
+import { useCSV } from "../../context/CSVContext";
 
 const DownloadContainer = styled.div`
   margin-top: 2rem;
@@ -12,19 +13,18 @@ const DownloadButton = styled.button`
 `;
 
 interface DownloadProps {
-  csvData: any;
-  configuration: any;
   onDownloadComplete: () => void;
 }
 
-const Download: React.FC<DownloadProps> = ({ csvData, configuration, onDownloadComplete }) => {
+const Download: React.FC<DownloadProps> = ({ onDownloadComplete }) => {
+  // These will be used in task 6
+  // const { csvData, configuration, processedData } = useCSV();
+
   // Implementation will be added in task 6
-  
+
   return (
     <DownloadContainer>
-      <DownloadButton disabled>
-        Download Processed CSV
-      </DownloadButton>
+      <DownloadButton disabled>Download Processed CSV</DownloadButton>
       <p>Download functionality will be implemented in task 6</p>
     </DownloadContainer>
   );

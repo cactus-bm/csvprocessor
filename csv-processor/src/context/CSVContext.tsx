@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { parseCSV, processCSV } from "../services/csvService";
 
@@ -86,6 +87,12 @@ export const CSVProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
+  // Use a ref to track if processing is needed
+  const processingNeeded = useRef<boolean>(false);
+
+  // Debounce timer for processing
+  const processingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Upload and parse CSV file
   const uploadCSV = useCallback(async (file: File): Promise<void> => {
     setIsProcessing(true);
@@ -106,7 +113,14 @@ export const CSVProvider: React.FC<{ children: ReactNode }> = ({
 
   // Update configuration with partial updates
   const updateConfiguration = useCallback((updates: Partial<Configuration>) => {
-    setConfiguration((prev) => ({ ...prev, ...updates }));
+    setConfiguration((prev) => {
+      const newConfig = { ...prev, ...updates };
+
+      // Mark that processing is needed due to configuration change
+      processingNeeded.current = true;
+
+      return newConfig;
+    });
   }, []);
 
   // Process CSV data based on current configuration
@@ -120,6 +134,15 @@ export const CSVProvider: React.FC<{ children: ReactNode }> = ({
     setError(null);
 
     try {
+      // Clear any existing processing timer
+      if (processingTimerRef.current) {
+        clearTimeout(processingTimerRef.current);
+        processingTimerRef.current = null;
+      }
+
+      // Reset the processing needed flag
+      processingNeeded.current = false;
+
       const processed = processCSV(csvData, configuration);
       setProcessedData(processed);
     } catch (err) {
@@ -139,14 +162,54 @@ export const CSVProvider: React.FC<{ children: ReactNode }> = ({
     setProcessedData([]);
     setCurrentStep(CSVProcessingStep.UPLOAD);
     setError(null);
+
+    // Clear any processing timer
+    if (processingTimerRef.current) {
+      clearTimeout(processingTimerRef.current);
+      processingTimerRef.current = null;
+    }
+
+    processingNeeded.current = false;
   }, []);
 
-  // Process data whenever configuration changes
+  // Process data whenever configuration changes with debouncing
   useEffect(() => {
-    if (csvData && currentStep >= CSVProcessingStep.CONFIGURE_HEADERS) {
-      processCSVData();
+    if (
+      csvData &&
+      currentStep >= CSVProcessingStep.CONFIGURE_HEADERS &&
+      processingNeeded.current
+    ) {
+      // Clear any existing timer
+      if (processingTimerRef.current) {
+        clearTimeout(processingTimerRef.current);
+      }
+
+      // Set a new timer to process data after a short delay (300ms)
+      // This prevents excessive processing when multiple configuration changes happen quickly
+      processingTimerRef.current = setTimeout(() => {
+        processCSVData();
+        processingTimerRef.current = null;
+      }, 300);
+
+      // Cleanup function to clear the timer if the component unmounts
+      return () => {
+        if (processingTimerRef.current) {
+          clearTimeout(processingTimerRef.current);
+        }
+      };
     }
   }, [csvData, configuration, currentStep, processCSVData]);
+
+  // Initial processing when data is loaded or step changes
+  useEffect(() => {
+    if (
+      csvData &&
+      currentStep >= CSVProcessingStep.CONFIGURE_HEADERS &&
+      !isProcessing
+    ) {
+      processCSVData();
+    }
+  }, [csvData, currentStep, isProcessing, processCSVData]);
 
   return (
     <CSVContext.Provider

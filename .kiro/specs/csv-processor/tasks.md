@@ -65,16 +65,16 @@
     - Write unit tests for amount calculations
     - _Requirements: 4.3, 4.4, 5.1, 5.2, 5.3_
 
-- [ ] 5. Implement CSV preview component
+- [x] 5. Implement CSV preview component
 
-  - [ ] 5.1 Create paginated data table component
+  - [x] 5.1 Create paginated data table component
 
     - Display processed data with applied transformations
     - Implement pagination for large datasets
     - Highlight transformed columns
     - _Requirements: 7.2, 7.3_
 
-  - [ ] 5.2 Implement real-time preview updates
+  - [x] 5.2 Implement real-time preview updates
     - Update preview when configuration changes
     - Show loading state during processing
     - Handle errors in data transformation
