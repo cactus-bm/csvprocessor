@@ -38,7 +38,7 @@ interface DownloadProps {
 }
 
 const Download: React.FC<DownloadProps> = ({ onDownloadComplete }) => {
-  const { csvData, configuration, processedData } = useCSV();
+  const { processedData } = useCSV();
   const [isDownloading, setIsDownloading] = useState(false);
 
   /**
@@ -50,13 +50,8 @@ const Download: React.FC<DownloadProps> = ({ onDownloadComplete }) => {
     const date = new Date();
     const dateStr = date.toISOString().split("T")[0];
 
-    // Try to extract original filename if available
-    let originalFilename = "data";
-    if (csvData?.rawText) {
-      // If we have the raw text, we might have the original filename from the upload
-      // This is a placeholder - in a real app, we'd store the original filename in the context
-      originalFilename = "csv_data";
-    }
+    // Use a generic filename since we don't store the original filename
+    const originalFilename = "csv_data";
 
     return `${originalFilename}_processed_${dateStr}.csv`;
   };

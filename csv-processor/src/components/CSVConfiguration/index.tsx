@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { useCSV, CSVData, Configuration } from "../../context/CSVContext";
+import { useCSV, CSVProcessingStep } from "../../context/CSVContext";
 import DateColumnConfiguration from "./DateColumnConfiguration";
 import ColumnMappingConfiguration from "./ColumnMappingConfiguration";
 
@@ -102,16 +102,40 @@ const RowIndicator = styled.span`
   margin-right: 0.5rem;
 `;
 
+const ConfigurationButton = styled.button`
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--primary-dark-color);
+  }
+
+  &:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+  }
+`;
+
 interface CSVConfigurationProps {
-  csvData: CSVData;
-  onConfigurationComplete: (config: Configuration) => void;
+  onSuccess: () => void;
 }
 
-const CSVConfiguration: React.FC<CSVConfigurationProps> = ({
-  csvData,
-  onConfigurationComplete,
-}) => {
-  const { configuration, setConfiguration } = useCSV();
+const CSVConfiguration: React.FC<CSVConfigurationProps> = ({ onSuccess }) => {
+  const {
+    csvData,
+    configuration,
+    updateConfiguration,
+    setCurrentStep,
+    isProcessing,
+  } = useCSV();
+
   const [previewData, setPreviewData] = useState<string[][]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
 
@@ -145,19 +169,19 @@ const CSVConfiguration: React.FC<CSVConfigurationProps> = ({
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const newHeaderRowIndex = parseInt(event.target.value, 10);
-    const newConfig = {
-      ...configuration,
-      headerRowIndex: newHeaderRowIndex,
-    };
-    setConfiguration(newConfig);
+    updateConfiguration({ headerRowIndex: newHeaderRowIndex });
   };
 
   const handleRowClick = (rowIndex: number) => {
-    const newConfig = {
-      ...configuration,
-      headerRowIndex: rowIndex,
-    };
-    setConfiguration(newConfig);
+    updateConfiguration({ headerRowIndex: rowIndex });
+  };
+
+  const handleConfigurationComplete = () => {
+    // Move to the preview step
+    setCurrentStep(CSVProcessingStep.PREVIEW);
+
+    // Call the success callback
+    onSuccess();
   };
 
   if (!csvData || !csvData.rows || csvData.rows.length === 0) {
@@ -188,6 +212,7 @@ const CSVConfiguration: React.FC<CSVConfigurationProps> = ({
             id="header-row-select"
             value={configuration.headerRowIndex}
             onChange={handleHeaderRowChange}
+            disabled={isProcessing}
           >
             {csvData.rows.map((row: string[], index: number) => (
               <option key={index} value={index}>
@@ -217,7 +242,7 @@ const CSVConfiguration: React.FC<CSVConfigurationProps> = ({
                   key={rowIndex}
                   isHeaderRow={true}
                   isSelected={rowIndex === configuration.headerRowIndex}
-                  onClick={() => handleRowClick(rowIndex)}
+                  onClick={() => !isProcessing && handleRowClick(rowIndex)}
                 >
                   <TableCell style={{ width: "60px" }}>
                     <RowIndicator>
@@ -261,10 +286,18 @@ const CSVConfiguration: React.FC<CSVConfigurationProps> = ({
       </HeaderSelectionSection>
 
       {/* Add Column Mapping Configuration */}
-      <ColumnMappingConfiguration csvData={csvData} />
+      <ColumnMappingConfiguration />
 
       {/* Add Date Column Configuration */}
-      <DateColumnConfiguration csvData={csvData} />
+      <DateColumnConfiguration />
+
+      {/* Add Apply Configuration button */}
+      <ConfigurationButton
+        onClick={handleConfigurationComplete}
+        disabled={isProcessing}
+      >
+        {isProcessing ? "Processing..." : "Apply Configuration"}
+      </ConfigurationButton>
     </ConfigurationContainer>
   );
 };

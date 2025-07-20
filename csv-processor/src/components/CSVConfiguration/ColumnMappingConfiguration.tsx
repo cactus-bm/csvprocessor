@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { useCSV, CSVData } from "../../context/CSVContext";
+import { useCSV } from "../../context/CSVContext";
 
 const MappingContainer = styled.div`
   margin-bottom: 2rem;
@@ -66,10 +66,6 @@ const InfoText = styled.p`
   font-style: italic;
 `;
 
-interface ColumnMappingConfigurationProps {
-  csvData: CSVData;
-}
-
 // Column types that can be mapped
 const columnTypes = [
   { value: "amount", label: "Amount", description: "The transaction amount" },
@@ -96,15 +92,15 @@ const columnTypes = [
   },
 ];
 
-const ColumnMappingConfiguration: React.FC<ColumnMappingConfigurationProps> = ({
-  csvData,
-}) => {
-  const { configuration, updateConfiguration } = useCSV();
+const ColumnMappingConfiguration: React.FC = () => {
+  const { csvData, configuration, updateConfiguration, isProcessing } =
+    useCSV();
 
   // Get headers from the selected header row
   const headers = useMemo(() => {
+    if (!csvData || !csvData.rows) return [];
     return csvData.rows[configuration.headerRowIndex] || [];
-  }, [csvData.rows, configuration.headerRowIndex]);
+  }, [csvData, configuration.headerRowIndex]);
 
   // Handle column mapping change
   const handleColumnMappingChange = useCallback(
@@ -151,6 +147,10 @@ const ColumnMappingConfiguration: React.FC<ColumnMappingConfigurationProps> = ({
     configuration.columnMappings.amountType,
   ]);
 
+  if (!csvData || !csvData.rows || csvData.rows.length === 0) {
+    return null;
+  }
+
   return (
     <MappingContainer>
       <SectionTitle>Step 2: Map Columns</SectionTitle>
@@ -178,6 +178,7 @@ const ColumnMappingConfiguration: React.FC<ColumnMappingConfigurationProps> = ({
                 onChange={(e) =>
                   handleColumnMappingChange(columnType.value, e.target.value)
                 }
+                disabled={isProcessing}
               >
                 <option value="">-- Select Column --</option>
                 {headers.map((header, index) => (
@@ -199,6 +200,7 @@ const ColumnMappingConfiguration: React.FC<ColumnMappingConfigurationProps> = ({
               type="checkbox"
               checked={configuration.invertAmounts}
               onChange={handleInvertAmountsChange}
+              disabled={isProcessing}
             />
             Invert Amounts
           </CheckboxLabel>

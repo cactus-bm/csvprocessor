@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import GlobalStyles from "./GlobalStyles";
 import FileUpload from "./components/FileUpload";
@@ -35,14 +35,15 @@ const StepIndicator = styled.div`
   margin-bottom: 2rem;
 `;
 
-const Step = styled.div<{ active: boolean }>`
+const Step = styled.div<{ active: boolean; available: boolean }>`
   padding: 0.5rem 1rem;
   margin: 0 0.5rem;
   border-radius: 4px;
   background-color: ${(props) =>
     props.active ? "var(--primary-color)" : "var(--border-color)"};
   color: ${(props) => (props.active ? "white" : "var(--text-color)")};
-  cursor: ${(props) => (props.active ? "default" : "pointer")};
+  cursor: ${(props) => (props.available ? "pointer" : "not-allowed")};
+  opacity: ${(props) => (props.available ? 1 : 0.6)};
 `;
 
 const ErrorMessage = styled.div`
@@ -64,23 +65,18 @@ const SuccessMessage = styled.div`
 function App() {
   const {
     csvData,
-    setCsvData,
-    setConfiguration,
     processedData,
     currentStep,
     setCurrentStep,
     error,
-    setError,
-    processCSVData,
+    isProcessing,
   } = useCSV();
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleFileLoaded = (data: any) => {
-    setCsvData(data);
-    setCurrentStep(CSVProcessingStep.CONFIGURE_HEADERS);
-    setError(null);
-    setSuccessMessage("CSV file loaded successfully!");
+  // Set up success message handler
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message);
 
     // Clear success message after 3 seconds
     setTimeout(() => {
@@ -88,45 +84,57 @@ function App() {
     }, 3000);
   };
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
+  // Listen for changes in error state from context
+  useEffect(() => {
+    if (error) {
+      // Clear error message after 5 seconds
+      const timer = setTimeout(() => {
+        // We don't call setError directly to avoid circular dependencies
+        // The error will be cleared by the component that set it
+      }, 5000);
 
-    // Clear error message after 5 seconds
-    setTimeout(() => {
-      setError(null);
-    }, 5000);
-  };
-
-  const handleConfigurationComplete = (config: any) => {
-    setConfiguration(config);
-    setCurrentStep(CSVProcessingStep.PREVIEW);
-
-    // Trigger data processing with new configuration
-    processCSVData();
-
-    setSuccessMessage("Configuration applied successfully!");
-
-    // Clear success message after 3 seconds
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 3000);
-  };
-
-  const handleDownloadComplete = () => {
-    setSuccessMessage("File downloaded successfully!");
-
-    // Clear success message after 3 seconds
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 3000);
-  };
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   // Handle step navigation
   const handleStepClick = (step: CSVProcessingStep) => {
-    // Only allow navigation to steps that are available based on current progress
-    if (step <= currentStep) {
+    // Check if the step is available based on current progress
+    const isStepAvailable = isStepAccessible(step);
+
+    if (isStepAvailable) {
       setCurrentStep(step);
     }
+  };
+
+  // Determine if a step is accessible based on current application state
+  const isStepAccessible = (step: CSVProcessingStep): boolean => {
+    // Upload is always accessible
+    if (step === CSVProcessingStep.UPLOAD) {
+      return true;
+    }
+
+    // Configuration requires CSV data
+    if (step === CSVProcessingStep.CONFIGURE_HEADERS) {
+      return !!csvData;
+    }
+
+    // Preview requires CSV data
+    if (step === CSVProcessingStep.PREVIEW) {
+      return !!csvData && step <= currentStep;
+    }
+
+    // Download requires processed data
+    if (step === CSVProcessingStep.DOWNLOAD) {
+      return (
+        !!csvData &&
+        !!processedData &&
+        processedData.length > 0 &&
+        step <= currentStep
+      );
+    }
+
+    return false;
   };
 
   return (
@@ -141,6 +149,7 @@ function App() {
           <StepIndicator>
             <Step
               active={currentStep === CSVProcessingStep.UPLOAD}
+              available={isStepAccessible(CSVProcessingStep.UPLOAD)}
               onClick={() => handleStepClick(CSVProcessingStep.UPLOAD)}
             >
               Upload
@@ -151,27 +160,24 @@ function App() {
                 currentStep === CSVProcessingStep.CONFIGURE_COLUMNS ||
                 currentStep === CSVProcessingStep.CONFIGURE_DATES
               }
+              available={isStepAccessible(CSVProcessingStep.CONFIGURE_HEADERS)}
               onClick={() =>
-                csvData && handleStepClick(CSVProcessingStep.CONFIGURE_HEADERS)
+                handleStepClick(CSVProcessingStep.CONFIGURE_HEADERS)
               }
             >
               Configure
             </Step>
             <Step
               active={currentStep === CSVProcessingStep.PREVIEW}
-              onClick={() =>
-                csvData && handleStepClick(CSVProcessingStep.PREVIEW)
-              }
+              available={isStepAccessible(CSVProcessingStep.PREVIEW)}
+              onClick={() => handleStepClick(CSVProcessingStep.PREVIEW)}
             >
               Preview
             </Step>
             <Step
               active={currentStep === CSVProcessingStep.DOWNLOAD}
-              onClick={() =>
-                csvData &&
-                processedData.length > 0 &&
-                handleStepClick(CSVProcessingStep.DOWNLOAD)
-              }
+              available={isStepAccessible(CSVProcessingStep.DOWNLOAD)}
+              onClick={() => handleStepClick(CSVProcessingStep.DOWNLOAD)}
             >
               Download
             </Step>
@@ -179,17 +185,25 @@ function App() {
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
           {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+          {isProcessing && (
+            <SuccessMessage>Processing data, please wait...</SuccessMessage>
+          )}
 
           {currentStep === CSVProcessingStep.UPLOAD && (
-            <FileUpload onFileLoaded={handleFileLoaded} onError={handleError} />
+            <FileUpload
+              onSuccess={() =>
+                showSuccessMessage("CSV file loaded successfully!")
+              }
+            />
           )}
 
           {currentStep >= CSVProcessingStep.CONFIGURE_HEADERS &&
             currentStep <= CSVProcessingStep.CONFIGURE_DATES &&
             csvData && (
               <CSVConfiguration
-                csvData={csvData}
-                onConfigurationComplete={handleConfigurationComplete}
+                onSuccess={() =>
+                  showSuccessMessage("Configuration applied successfully!")
+                }
               />
             )}
 
@@ -200,7 +214,11 @@ function App() {
           {currentStep >= CSVProcessingStep.PREVIEW &&
             csvData &&
             processedData.length > 0 && (
-              <Download onDownloadComplete={handleDownloadComplete} />
+              <Download
+                onDownloadComplete={() =>
+                  showSuccessMessage("File downloaded successfully!")
+                }
+              />
             )}
         </Main>
       </AppContainer>

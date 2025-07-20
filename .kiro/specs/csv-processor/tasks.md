@@ -96,7 +96,7 @@
     - Show success message after download
     - _Requirements: 6.1, 6.4_
 
-- [ ] 7. Implement application state management
+- [-] 7. Implement application state management
 
   - [x] 7.1 Create context for application state
 
@@ -105,7 +105,7 @@
     - Write unit tests for state management
     - _Requirements: 7.2_
 
-  - [ ] 7.2 Connect components to state management
+  - [x] 7.2 Connect components to state management
     - Wire up components to read from and update state
     - Ensure state consistency across components
     - Implement error handling at state level

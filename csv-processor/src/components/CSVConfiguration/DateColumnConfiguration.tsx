@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { useCSV, CSVData } from "../../context/CSVContext";
+import { useCSV } from "../../context/CSVContext";
 
 const DateConfigContainer = styled.div`
   margin-bottom: 2rem;
@@ -75,10 +75,6 @@ const FormatExample = styled.span`
   margin: 0 0.3rem;
 `;
 
-interface DateColumnConfigurationProps {
-  csvData: CSVData;
-}
-
 /**
  * Attempts to detect the date format from a sample of date values
  * @param dateValues Array of date strings to analyze
@@ -127,10 +123,9 @@ const detectDateFormat = (
   return "MM/DD";
 };
 
-const DateColumnConfiguration: React.FC<DateColumnConfigurationProps> = ({
-  csvData,
-}) => {
-  const { configuration, updateConfiguration } = useCSV();
+const DateColumnConfiguration: React.FC = () => {
+  const { csvData, configuration, updateConfiguration, isProcessing } =
+    useCSV();
   const [detectedFormat, setDetectedFormat] = useState<
     "DD/MM" | "MM/DD" | "DD MMM" | "auto"
   >("auto");
@@ -138,12 +133,15 @@ const DateColumnConfiguration: React.FC<DateColumnConfigurationProps> = ({
 
   // Get headers from the selected header row using useMemo to avoid unnecessary recalculations
   const headers = React.useMemo(() => {
+    if (!csvData || !csvData.rows) return [];
     return csvData.rows[configuration.headerRowIndex] || [];
-  }, [csvData.rows, configuration.headerRowIndex]);
+  }, [csvData, configuration.headerRowIndex]);
 
   // Update date column values when date column changes
   useEffect(() => {
     if (
+      csvData &&
+      csvData.rows &&
       configuration.columnMappings.date &&
       csvData.rows.length > configuration.headerRowIndex + 1
     ) {
@@ -174,7 +172,7 @@ const DateColumnConfiguration: React.FC<DateColumnConfigurationProps> = ({
     configuration.columnMappings.date,
     configuration.headerRowIndex,
     configuration.dateFormat,
-    csvData.rows,
+    csvData,
     headers,
     updateConfiguration,
   ]);
@@ -200,6 +198,11 @@ const DateColumnConfiguration: React.FC<DateColumnConfigurationProps> = ({
     },
     [updateConfiguration]
   );
+
+  // Early return after all hooks
+  if (!csvData || !csvData.rows || csvData.rows.length === 0) {
+    return null;
+  }
 
   // Get example date based on format
   const getDateExample = (
@@ -229,6 +232,7 @@ const DateColumnConfiguration: React.FC<DateColumnConfigurationProps> = ({
           id="date-column-select"
           value={configuration.columnMappings.date || ""}
           onChange={handleDateColumnChange}
+          disabled={isProcessing}
         >
           <option value="">-- Select Date Column --</option>
           {headers.map((header, index) => (
