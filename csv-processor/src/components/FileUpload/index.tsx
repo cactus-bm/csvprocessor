@@ -48,7 +48,7 @@ const UploadButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary-dark-color);
   }
 `;
 

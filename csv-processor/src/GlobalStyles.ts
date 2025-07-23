@@ -1,8 +1,9 @@
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
   :root {
     --primary-color: #4a90e2;
+    --primary-dark-color: #357abd;
     --secondary-color: #50e3c2;
     --error-color: #e74c3c;
     --success-color: #2ecc71;
@@ -48,7 +49,7 @@ const GlobalStyles = createGlobalStyle`
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: darken(var(--primary-color), 10%);
+      background-color: var(--primary-dark-color);
     }
 
     &:disabled {
