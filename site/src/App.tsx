@@ -171,7 +171,7 @@ function App() {
 
     // Download requires processed data
     if (step === CSVProcessingStep.DOWNLOAD) {
-      return !!csvData && currentStep == CSVProcessingStep.PREVIEW;
+      return !!csvData && currentStep === CSVProcessingStep.PREVIEW;
     }
 
     return false;

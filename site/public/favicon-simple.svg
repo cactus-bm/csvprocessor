@@ -1,0 +1,12 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple version optimized for small sizes -->
+  <rect width="16" height="16" rx="2" fill="#4a90e2"/>
+  
+  <!-- Simplified comma for small sizes -->
+  <g fill="white">
+    <!-- Main dot -->
+    <circle cx="8" cy="6" r="2.5" />
+    <!-- Tail -->
+    <path d="M 8 8.5 L 6.5 11.5 C 6 12, 5.5 12, 5.5 11.5 C 5.5 11, 6 10.5, 6.5 10 L 8 8.5 Z" />
+  </g>
+</svg>
