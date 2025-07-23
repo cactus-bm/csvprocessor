@@ -106,8 +106,8 @@ const Download: React.FC<DownloadProps> = ({ onDownloadComplete }) => {
         {isDownloading ? "Generating..." : "Download Processed CSV"}
       </DownloadButton>
       <DownloadInfo>
-        Download will include all original columns plus US_DATE, UK_DATE,
-        ISO_DATE, and CLEAN_AMOUNT
+        Download will include all original columns plus US Date, UK Date, ISO
+        Date, and Clean Amount
       </DownloadInfo>
     </DownloadContainer>
   );

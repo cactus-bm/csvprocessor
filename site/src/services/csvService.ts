@@ -278,14 +278,14 @@ export const processCSV = (
       );
 
       // Add standardized date formats to the processed row
-      processedRow.US_DATE = standardDates.US_DATE;
-      processedRow.UK_DATE = standardDates.UK_DATE;
-      processedRow.ISO_DATE = standardDates.ISO_DATE;
+      processedRow["US Date"] = standardDates.US_DATE;
+      processedRow["UK Date"] = standardDates.UK_DATE;
+      processedRow["ISO Date"] = standardDates.ISO_DATE;
     } else {
       // No date column configured, use empty strings
-      processedRow.US_DATE = "";
-      processedRow.UK_DATE = "";
-      processedRow.ISO_DATE = "";
+      processedRow["US Date"] = "";
+      processedRow["UK Date"] = "";
+      processedRow["ISO Date"] = "";
     }
 
     // Calculate CLEAN_AMOUNT based on configuration
@@ -333,7 +333,7 @@ export const processCSV = (
       cleanAmount = -cleanAmount;
     }
 
-    processedRow.CLEAN_AMOUNT = cleanAmount;
+    processedRow["Clean Amount"] = cleanAmount;
 
     return processedRow;
   });
@@ -355,7 +355,7 @@ export const generateCSV = (processedData: ProcessedRow[]): string => {
   );
 
   // Ensure the standardized columns are at the end
-  const standardColumns = ["US_DATE", "UK_DATE", "ISO_DATE", "CLEAN_AMOUNT"];
+  const standardColumns = ["US Date", "UK Date", "ISO Date", "Clean Amount"];
 
   // Remove standard columns from the regular headers if they exist
   const regularHeaders = headers.filter(

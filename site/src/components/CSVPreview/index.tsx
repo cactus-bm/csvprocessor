@@ -113,10 +113,10 @@ const CSVPreview: React.FC<CSVPreviewProps> = () => {
 
   // Set of transformed columns to highlight
   const transformedColumns = new Set([
-    "US_DATE",
-    "UK_DATE",
-    "ISO_DATE",
-    "CLEAN_AMOUNT",
+    "US Date",
+    "UK Date",
+    "ISO Date",
+    "Clean Amount",
   ]);
 
   // Update pagination when processed data changes
@@ -136,17 +136,31 @@ const CSVPreview: React.FC<CSVPreviewProps> = () => {
         new Set(processedData.flatMap((row) => Object.keys(row)))
       );
 
+      // Filter out columns that are completely empty
+      const nonEmptyHeaders = allHeaders.filter((header) => {
+        return processedData.some((row) => {
+          const value = row[header];
+          return value !== undefined && value !== null && value !== "";
+        });
+      });
+
       // Move transformed columns to the end
       const standardColumns = [
-        "US_DATE",
-        "UK_DATE",
-        "ISO_DATE",
-        "CLEAN_AMOUNT",
+        "US Date",
+        "UK Date",
+        "ISO Date",
+        "Clean Amount",
       ];
-      const regularHeaders = allHeaders.filter(
+      const regularHeaders = nonEmptyHeaders.filter(
         (header) => !standardColumns.includes(header)
       );
-      setHeaders([...regularHeaders, ...standardColumns]);
+
+      // Only include standard columns that have data
+      const availableStandardColumns = standardColumns.filter((header) =>
+        nonEmptyHeaders.includes(header)
+      );
+
+      setHeaders([...regularHeaders, ...availableStandardColumns]);
     } else {
       setTotalPages(1);
       setCurrentPage(1);

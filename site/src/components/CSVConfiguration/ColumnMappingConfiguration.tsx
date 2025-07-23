@@ -80,16 +80,6 @@ const columnTypes = [
     label: "Expense",
     description: "Expense or debit amount",
   },
-  {
-    value: "description",
-    label: "Description",
-    description: "Transaction description or memo",
-  },
-  {
-    value: "reference",
-    label: "Reference",
-    description: "Transaction reference number",
-  },
 ];
 
 const ColumnMappingConfiguration: React.FC = () => {
