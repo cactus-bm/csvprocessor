@@ -1,13 +1,13 @@
-# CSV Processor - Deployment Guide
+# CSV Convertor - Deployment Guide
 
-This guide covers deploying the CSV Processor application to GitHub Pages with the custom domain csvprocessor.com.
+This guide covers deploying the CSV Convertor application to GitHub Pages with the custom domain csvconvertor.com.
 
 ## 🚀 Quick Deployment
 
 ### Prerequisites
 
 - GitHub repository set up
-- Domain `csvprocessor.com` purchased and ready to configure
+- Domain `csvconvertor.com` purchased and ready to configure
 - Node.js 18+ installed locally
 
 ### Automated Deployment (Recommended)
@@ -39,13 +39,13 @@ npm run deploy
 2. Navigate to "Pages" section
 3. Set source to "Deploy from a branch"
 4. Select "gh-pages" branch
-5. Custom domain should automatically be set to `csvprocessor.com`
+5. Custom domain should automatically be set to `csvconvertor.com`
 
 ### DNS Configuration
 
 Configure your domain registrar with these DNS records:
 
-**For Apex Domain (csvprocessor.com):**
+**For Apex Domain (csvconvertor.com):**
 
 ```
 Type: A
@@ -76,7 +76,7 @@ Value: 185.199.111.153
 ```
 Type: CNAME
 Name: www
-Value: csvprocessor.com
+Value: csvconvertor.com
 ```
 
 ## 📁 Project Structure
@@ -102,13 +102,13 @@ site/
 
 ### package.json
 
-- `homepage`: Set to `https://csvprocessor.com`
+- `homepage`: Set to `https://csvconvertor.com`
 - `deploy` script: Uses gh-pages for deployment
 - `predeploy` script: Builds the project before deployment
 
 ### CNAME
 
-- Contains `csvprocessor.com` for custom domain
+- Contains `csvconvertor.com` for custom domain
 
 ### GitHub Actions Workflow
 
@@ -121,7 +121,7 @@ site/
 After deployment, verify:
 
 1. **GitHub Pages**: Check repository settings → Pages
-2. **Domain**: Visit https://csvprocessor.com
+2. **Domain**: Visit https://csvconvertor.com
 3. **SSL**: Ensure HTTPS is working
 4. **Functionality**: Test CSV upload and processing
 
