@@ -142,7 +142,7 @@ function App() {
       <GlobalStyles />
       <AppContainer>
         <Header>
-          <Title>CSV Processor</Title>
+          <Title>CSV Convertor</Title>
           <p>Upload, configure, and transform your CSV files</p>
         </Header>
         <Main>

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import App from "./App";
 import { CSVProvider } from "./context/CSVContext";
 
-test("renders CSV processor app", () => {
+test("renders CSV convertor app", () => {
   render(
     <CSVProvider>
       <App />

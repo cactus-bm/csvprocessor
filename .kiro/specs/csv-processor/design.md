@@ -1,8 +1,8 @@
-# Design Document: CSV Processor
+# Design Document: CSV Convertor
 
 ## Overview
 
-The CSV Processor is a client-side React application that allows users to upload CSV files, configure how the data should be interpreted, perform transformations on financial data, and download the processed file with standardized columns. The application runs entirely in the browser with no backend dependencies, making it portable and easy to deploy.
+The CSV Convertor is a client-side React application that allows users to upload CSV files, configure how the data should be interpreted, perform transformations on financial data, and download the processed file with standardized columns. The application runs entirely in the browser with no backend dependencies, making it portable and easy to deploy.
 
 ## Architecture
 
