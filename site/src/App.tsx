@@ -6,6 +6,7 @@ import CSVConfiguration from "./components/CSVConfiguration";
 import CSVPreview from "./components/CSVPreview";
 import Download from "./components/Download";
 import { useCSV, CSVProcessingStep } from "./context/CSVContext";
+import { generateCSV } from "./services/csvService";
 
 const AppContainer = styled.div`
   max-width: 1200px;
@@ -84,6 +85,45 @@ function App() {
     }, 3000);
   };
 
+  // Handle download functionality
+  const handleDownload = () => {
+    if (!processedData || processedData.length === 0) {
+      return;
+    }
+
+    try {
+      // Generate CSV content
+      const csvContent = generateCSV(processedData);
+
+      // Create a Blob with the CSV content
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+      // Generate filename
+      const date = new Date();
+      const dateStr = date.toISOString().split("T")[0];
+      const filename = `csv_data_processed_${dateStr}.csv`;
+
+      // Create a download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+
+      // Append to the document, click it, and remove it
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+
+      // Show success message
+      showSuccessMessage("File downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating or downloading CSV:", error);
+    }
+  };
+
   // Listen for changes in error state from context
   useEffect(() => {
     if (error) {
@@ -103,7 +143,12 @@ function App() {
     const isStepAvailable = isStepAccessible(step);
 
     if (isStepAvailable) {
-      setCurrentStep(step);
+      // Special handling for Download step - trigger download instead of navigation
+      if (step === CSVProcessingStep.DOWNLOAD) {
+        handleDownload();
+      } else {
+        setCurrentStep(step);
+      }
     }
   };
 
@@ -126,12 +171,7 @@ function App() {
 
     // Download requires processed data
     if (step === CSVProcessingStep.DOWNLOAD) {
-      return (
-        !!csvData &&
-        !!processedData &&
-        processedData.length > 0 &&
-        step <= currentStep
-      );
+      return !!csvData && currentStep == CSVProcessingStep.PREVIEW;
     }
 
     return false;
@@ -142,7 +182,7 @@ function App() {
       <GlobalStyles />
       <AppContainer>
         <Header>
-          <Title>CSV Convertor</Title>
+          <Title>CSVConvertor.com</Title>
           <p>Upload, configure, and transform your CSV files</p>
         </Header>
         <Main>
