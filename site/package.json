@@ -29,7 +29,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "generate-favicons": "node generate-favicons.js",
+    "generate-ico": "node generate-ico.js",
+    "generate-all-icons": "npm run generate-favicons && npm run generate-ico"
   },
   "eslintConfig": {
     "extends": [
@@ -50,6 +53,8 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "sharp": "^0.34.3",
+    "to-ico": "^1.1.5"
   }
 }

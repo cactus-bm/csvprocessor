@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Favicon Generator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .size-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .size-item {
+        text-align: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #fafafa;
+      }
+      .size-item canvas {
+        border: 1px solid #ccc;
+        margin: 10px 0;
+      }
+      .download-btn {
+        background: #4a90e2;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .download-btn:hover {
+        background: #357abd;
+      }
+      .instructions {
+        background: #e8f4fd;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CSV Processor Favicon Generator</h1>
+
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+          <li>This page will generate all required favicon and logo sizes</li>
+          <li>Click "Download" for each size you need</li>
+          <li>Save the files to your public directory</li>
+          <li>Update your HTML and manifest.json files</li>
+        </ol>
+      </div>
+
+      <div class="size-grid" id="sizeGrid">
+        <!-- Generated content will go here -->
+      </div>
+
+      <div class="instructions">
+        <h3>Files to Generate:</h3>
+        <ul>
+          <li><strong>favicon-16x16.png</strong> - Browser tab favicon</li>
+          <li><strong>favicon-32x32.png</strong> - Browser tab favicon</li>
+          <li><strong>favicon-64x64.png</strong> - Browser favicon</li>
+          <li><strong>logo192.png</strong> - PWA icon</li>
+          <li><strong>logo512.png</strong> - PWA icon</li>
+          <li>
+            <strong>apple-touch-icon.png</strong> - iOS home screen (180x180)
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // SVG content from our favicon
+      const svgContent = `<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="commaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90e2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#357abd;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="url(#commaGradient)"/>
+  
+  <!-- Proper comma - moved left and twice as big -->
+  <g fill="white" transform="translate(16,16) scale(0.24) translate(-190,-320)">
+    <path d="m 166,375 v -8.6 q 20.1,-6.6 31.1,-20.7 11.1,-13.9 11.1,-29.5 0,-3.7 -1.8,-6.2 -1.4,-1.8 -2.7,-1.8 -2.1,0 -9.4,3.9 -3.5,1.8 -7.4,1.8 -9.6,0 -15.2,-5.7 -5.7,-5.7 -5.7,-15.6 0,-9.6 7.2,-16.4 7.4,-6.8 18,-6.8 12.9,0 22.9,11.3 10.2,11.1 10.2,29.7 0,20.1 -14.1,37.3 -13.9,17.4 -44.1,27.3 z" />
+  </g>
+</svg>`;
+
+      // Sizes to generate
+      const sizes = [
+        { size: 16, name: "favicon-16x16.png" },
+        { size: 24, name: "favicon-24x24.png" },
+        { size: 32, name: "favicon-32x32.png" },
+        { size: 64, name: "favicon-64x64.png" },
+        { size: 180, name: "apple-touch-icon.png" },
+        { size: 192, name: "logo192.png" },
+        { size: 512, name: "logo512.png" },
+      ];
+
+      function generateCanvas(size, filename) {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+
+        // Create an image from SVG
+        const img = new Image();
+        const svgBlob = new Blob([svgContent], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(svgBlob);
+
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0, size, size);
+          URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+        return canvas;
+      }
+
+      function downloadCanvas(canvas, filename) {
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
+
+      // Generate all sizes
+      const grid = document.getElementById("sizeGrid");
+
+      sizes.forEach(({ size, name }) => {
+        const item = document.createElement("div");
+        item.className = "size-item";
+
+        const canvas = generateCanvas(size, name);
+        canvas.style.width = Math.min(size, 64) + "px";
+        canvas.style.height = Math.min(size, 64) + "px";
+
+        const button = document.createElement("button");
+        button.className = "download-btn";
+        button.textContent = "Download";
+        button.onclick = () => downloadCanvas(canvas, name);
+
+        item.innerHTML = `
+                <h4>${name}</h4>
+                <div>${size}x${size}</div>
+            `;
+        item.appendChild(canvas);
+        item.appendChild(document.createElement("br"));
+        item.appendChild(button);
+
+        grid.appendChild(item);
+      });
+    </script>
+  </body>
+</html>

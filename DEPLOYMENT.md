@@ -188,3 +188,48 @@ If you encounter issues:
 2. Verify DNS settings
 3. Test build locally
 4. Check GitHub Pages status
+
+## 🎨 Favicon Generation
+
+The project includes automated favicon generation from the SVG source.
+
+### Generated Files
+
+The favicon system includes:
+
+- **favicon.svg** - Scalable vector version (primary)
+- **favicon.ico** - Multi-size ICO file (16, 24, 32, 64px)
+- **favicon-16x16.png** - Browser tab favicon
+- **favicon-24x24.png** - Browser favicon
+- **favicon-32x32.png** - Standard browser favicon
+- **favicon-64x64.png** - High-res browser favicon
+- **apple-touch-icon.png** - iOS home screen (180x180)
+- **logo192.png** - PWA icon
+- **logo512.png** - PWA high-res icon
+
+### Regenerating Favicons
+
+To update favicons after modifying the SVG:
+
+```bash
+# Generate all PNG sizes from SVG
+npm run generate-favicons
+
+# Generate favicon.ico from PNG files
+npm run generate-ico
+
+# Generate everything at once
+npm run generate-all-icons
+```
+
+### Manual Generation
+
+If you prefer manual generation, open `public/favicon-generator.html` in your browser to download individual sizes.
+
+### Browser Support
+
+- **Modern browsers**: Use SVG favicon for crisp display
+- **Older browsers**: Fall back to ICO format
+- **iOS devices**: Use apple-touch-icon.png
+- **PWA installations**: Use logo192.png and logo512.png
+- **High-DPI displays**: Automatically select appropriate resolution
