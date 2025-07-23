@@ -1,6 +1,6 @@
 {
-  "short_name": "CSV Processor",
-  "name": "CSV Processor - Transform Your CSV Files",
+  "short_name": "CSV Convertor",
+  "name": "CSV Convertor - Transform Your CSV Files",
   "icons": [
     {
       "src": "favicon.svg",
