@@ -97,7 +97,7 @@ const detectDateFormat = (
   if (hasDdMmmFormat) return "DD MMM";
 
   // Check for DD/MM vs MM/DD format
-  const dateRegex = /^(\d{1,2})([./\-](\d{1,2}))[./\-](\d{2,4})$/;
+  const dateRegex = /^(\d{1,2})([./-](\d{1,2}))[./-](\d{2,4})$/;
   const dateMatches = sampleValues
     .map((value) => value.trim().match(dateRegex))
     .filter(Boolean) as RegExpMatchArray[];
